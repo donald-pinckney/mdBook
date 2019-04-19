@@ -124,9 +124,6 @@ function playpen_text(playpen) {
             new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
         ]);
     }
-
-    // var playpens = Array.from(document.querySelectorAll(".playpen"));
-
     
 
     function run_rust_code(code_block) {

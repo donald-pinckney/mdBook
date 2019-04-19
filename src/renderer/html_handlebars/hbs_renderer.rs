@@ -566,6 +566,30 @@ fn fix_code_blocks(html: &str) -> String {
         }).into_owned()
 }
 
+fn add_rust_playpen_pre(classes: &str, text: &str, code: &str, playpen_config: &Playpen) -> String {
+    // wrap the contents in an external pre block
+    if playpen_config.editable && classes.contains("editable")
+        || text.contains("fn main")
+        || text.contains("quick_main!")
+    {
+        format!("<pre class=\"playpen\">{}</pre>", text)
+    } else {
+        // we need to inject our own main
+        let (attrs, code) = partition_source(code);
+
+        format!(
+            "<pre class=\"playpen\"><code class=\"{}\">\n# \
+                #![allow(unused_variables)]\n{}#fn main() {{\n{}#}}</code></pre>",
+            classes, attrs, code
+        )
+    }
+}
+
+fn add_generic_playpen_pre(text: &str) -> String {
+    // wrap the contents in an external pre block
+    format!("<pre class=\"playpen\">{}</pre>", text)
+}
+
 fn add_playpen_pre(html: &str, playpen_config: &Playpen) -> String {
     let regex = Regex::new(r##"((?s)<code[^>]?class="([^"]+)".*?>(.*?)</code>)"##).unwrap();
     regex
@@ -579,21 +603,10 @@ fn add_playpen_pre(html: &str, playpen_config: &Playpen) -> String {
                 && !classes.contains("noplaypen"))
                 || classes.contains("mdbook-runnable")
             {
-                // wrap the contents in an external pre block
-                if playpen_config.editable && classes.contains("editable")
-                    || text.contains("fn main")
-                    || text.contains("quick_main!")
-                {
-                    format!("<pre class=\"playpen\">{}</pre>", text)
+                if (classes.contains("language-rust")) { 
+                    add_rust_playpen_pre(classes, text, code, playpen_config)
                 } else {
-                    // we need to inject our own main
-                    let (attrs, code) = partition_source(code);
-
-                    format!(
-                        "<pre class=\"playpen\"><code class=\"{}\">\n# \
-                         #![allow(unused_variables)]\n{}#fn main() {{\n{}#}}</code></pre>",
-                        classes, attrs, code
-                    )
+                    add_generic_playpen_pre(text)
                 }
             } else {
                 // not language-rust, so no-op
