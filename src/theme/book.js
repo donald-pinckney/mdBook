@@ -15,6 +15,23 @@ function playpen_text(playpen) {
     }
 }
 
+function playpen_get_lang(playpen) {
+    var codeBlocks = Array.from(playpen.children).filter(child => child.matches("code"));
+    if(codeBlocks.length >= 1) {
+        var codeBlock = codeBlocks[0];
+        var cls = [].slice.apply(codeBlock.classList);
+        var langCls = cls.filter(cl => cl.startsWith("language-") || cl.startsWith("run-language-"));
+        if(langCls.length == 1) {
+            var lang = langCls[0];
+            if(lang.startsWith("run-language-")) {
+                lang = lang.replace("run-", "");
+            }
+            return lang;
+        }
+    }
+    return undefined;
+}
+
 (function codeSnippets() {
 
     // Hide Rust code lines prepended with a specific character
@@ -36,7 +53,8 @@ function playpen_text(playpen) {
                 // get list of crates available in the rust playground
                 let playground_crates = response.crates.map(item => item["id"]);
                 rust_playpens.forEach(block => handle_crate_list_update(block, playground_crates));
-            });
+            })
+            .catch(error => console.error("Could not connect to play.rust-lang.org: " + error.message));
         }
 
         function handle_crate_list_update(playpen_block, playground_crates) {
@@ -88,23 +106,18 @@ function playpen_text(playpen) {
         }
     }
 
+
     function initialize_playpens() {
         var playpens = Array.from(document.querySelectorAll(".playpen"));
         var playpensByLang = {};
 
         playpens.forEach(playpen => {
-            var codeBlocks = Array.from(playpen.children).filter(child => child.matches("code"));
-            if(codeBlocks.length == 1) {
-                var codeBlock = codeBlocks[0];
-                var cls = [].slice.apply(codeBlock.classList);
-                var langCls = cls.filter(cl => cl.startsWith("language-"));
-                if(langCls.length == 1) {
-                    var lang = langCls[0];
-                    if(playpensByLang[lang] === undefined) {
-                        playpensByLang[lang] = [playpen];
-                    } else {
-                        playpensByLang[lang].push(playpen);
-                    }
+            var lang = playpen_get_lang(playpen);
+            if(lang !== undefined) {
+                if(playpensByLang[lang] === undefined) {
+                    playpensByLang[lang] = [playpen];
+                } else {
+                    playpensByLang[lang].push(playpen);
                 }
             }
         });
@@ -125,8 +138,37 @@ function playpen_text(playpen) {
         ]);
     }
     
+    var language_dispatch_table = {
+        "language-rust": run_rust_code,
+        "language-idris": run_idris_code
+    };
 
-    function run_rust_code(code_block) {
+    function run_rust_code(code) {
+        var params = {
+            version: "stable",
+            optimize: "0",
+            code: code
+        };
+
+        if (code.indexOf("#![feature") !== -1) {
+            params.version = "nightly";
+        }
+
+        return fetch_with_timeout("https://play.rust-lang.org/evaluate.json", {
+            headers: {
+                'Content-Type': "application/json",
+            },
+            method: 'POST',
+            mode: 'cors',
+            body: JSON.stringify(params)
+        }).then(response => response.json()).then(response => response.result);
+    }
+
+    function run_idris_code(code) {
+        return Promise.resolve("Idris not yet implemented! " + code);
+    }
+
+    function run_playpen_code(code_block, lang) {
         var result_block = code_block.querySelector(".result");
         if (!result_block) {
             result_block = document.createElement('code');
@@ -137,29 +179,16 @@ function playpen_text(playpen) {
 
         let text = playpen_text(code_block);
 
-        var params = {
-            version: "stable",
-            optimize: "0",
-            code: text
-        };
-
-        if (text.indexOf("#![feature") !== -1) {
-            params.version = "nightly";
-        }
-
         result_block.innerText = "Running...";
 
-        fetch_with_timeout("https://play.rust-lang.org/evaluate.json", {
-            headers: {
-                'Content-Type': "application/json",
-            },
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify(params)
-        })
-        .then(response => response.json())
-        .then(response => result_block.innerText = response.result)
-        .catch(error => result_block.innerText = "Playground Communication: " + error.message);
+        var runFunc = language_dispatch_table[lang];
+        if(runFunc === undefined) {
+            result_block.innerText = "Error: can't run " + lang;
+        } else {
+            runFunc(text)
+                .then(result => result_block.innerText = result)
+                .catch(error => result_block.innerText = "Playground Communication: " + error.message);
+        }
     }
 
     // Syntax highlighting Configuration
@@ -169,11 +198,18 @@ function playpen_text(playpen) {
     });
 
     if (window.ace) {
-        // language-rust class needs to be removed for editable
+        // language-* class needs to be removed for editable
         // blocks or highlightjs will capture events
+        // But we also need to keep the language info around so we know how to run it later...
         Array
             .from(document.querySelectorAll('code.editable'))
-            .forEach(function (block) { block.classList.remove('language-rust'); });
+            .forEach(function (block) { 
+                var cls = Array.from(block.classList);
+                var langs = cls.filter(cl => cl.startsWith("language-"));
+                var newLangs = langs.map(lang => "run-" + lang);
+                langs.forEach(lang => block.classList.remove(lang));
+                newLangs.forEach(newLang => block.classList.add(newLang));
+            });
 
         Array
             .from(document.querySelectorAll('code:not(.editable)'))
@@ -307,9 +343,12 @@ function playpen_text(playpen) {
         buttons.insertBefore(runCodeButton, buttons.firstChild);
         buttons.insertBefore(copyCodeClipboardButton, buttons.firstChild);
 
-        runCodeButton.addEventListener('click', function (e) {
-            run_rust_code(pre_block);
-        });
+        var lang = playpen_get_lang(pre_block);
+        if(lang !== undefined) {
+            runCodeButton.addEventListener('click', function (e) {
+                run_playpen_code(pre_block, lang);
+            });
+        }
 
         let code_block = pre_block.querySelector("code");
         if (window.ace && code_block.classList.contains("editable")) {
