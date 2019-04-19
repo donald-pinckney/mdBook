@@ -18,9 +18,7 @@ window.editors = [];
 
         editor.$blockScrolling = Infinity;
 
-        editor.getSession().setMode("ace/mode/rust");
-
-        editor.originalCode = editor.getValue();
+        // editor.originalCode = editor.getValue();
 
         editors.push(editor);
     });

@@ -201,6 +201,7 @@ function playpen_get_lang(playpen) {
         // language-* class needs to be removed for editable
         // blocks or highlightjs will capture events
         // But we also need to keep the language info around so we know how to run it later...
+        // We also need to set the language mode for ace
         Array
             .from(document.querySelectorAll('code.editable'))
             .forEach(function (block) { 
@@ -209,6 +210,12 @@ function playpen_get_lang(playpen) {
                 var newLangs = langs.map(lang => "run-" + lang);
                 langs.forEach(lang => block.classList.remove(lang));
                 newLangs.forEach(newLang => block.classList.add(newLang));
+
+                if(langs.length == 1) {
+                    var lang = langs[0].replace("language-", "");
+                    let editor = window.ace.edit(block);
+                    editor.getSession().setMode("ace/mode/" + lang);
+                }
             });
 
         Array
@@ -412,7 +419,7 @@ function playpen_get_lang(playpen) {
             stylesheets.tomorrowNight.disabled = true;
             stylesheets.highlight.disabled = false;
 
-            ace_theme = "ace/theme/dawn";
+            ace_theme = "ace/theme/chrome";
         }
 
         setTimeout(function () {

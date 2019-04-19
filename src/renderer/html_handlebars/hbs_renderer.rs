@@ -172,7 +172,8 @@ impl HtmlHandlebars {
             write_file(destination, "editor.js", playpen_editor::JS)?;
             write_file(destination, "ace.js", playpen_editor::ACE_JS)?;
             write_file(destination, "mode-rust.js", playpen_editor::MODE_RUST_JS)?;
-            write_file(destination, "theme-dawn.js", playpen_editor::THEME_DAWN_JS)?;
+            write_file(destination, "mode-idris.js", playpen_editor::MODE_IDRIS_JS)?;
+            write_file(destination, "theme-chrome.js", playpen_editor::THEME_CHROME_JS)?;
             write_file(
                 destination,
                 "theme-tomorrow_night.js",
