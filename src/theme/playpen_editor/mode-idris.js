@@ -267,7 +267,9 @@ ace.define("ace/mode/idris_highlight_rules", ["require", "exports", "module", "a
                     regex: /(?:([\w']+)|(\()([|!%$+\-.,=<\/>:]+)(\)))(\s*)(:)(?!:)/,
                     push: [{
                         token: "meta.function.type-signature.idris",
-                        regex: /;|(?=--)|(?<=[^\s>])\s*(?!->)\s*$/,
+                        // regex: /;|(?=--)|(?<=[^\s>])\s*(?!->)\s*$/,
+                        regex: /;|(?=--)|(\s*(?!->)\s*$)/,
+                        // regex: /a/,
                         next: "pop"
                     }, {
                         include: "#type_signature"
