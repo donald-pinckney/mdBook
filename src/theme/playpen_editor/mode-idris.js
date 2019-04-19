@@ -267,7 +267,7 @@ ace.define("ace/mode/idris_highlight_rules", ["require", "exports", "module", "a
                     regex: /(?:([\w']+)|(\()([|!%$+\-.,=<\/>:]+)(\)))(\s*)(:)(?!:)/,
                     push: [{
                         token: "meta.function.type-signature.idris",
-                        regex: /;|[^\s>](\s*(?!->)\s*)$/,
+                        regex: /;|(?=--)|(?<=[^\s>])\s*(?!->)\s*$/,
                         next: "pop"
                     }, {
                         include: "#type_signature"
@@ -281,7 +281,7 @@ ace.define("ace/mode/idris_highlight_rules", ["require", "exports", "module", "a
                     regex: /\(\)/
                 }, {
                     token: "constant.language.bottom.idris",
-                    regex: /_\|_/
+                    regex: /_\|_|Void/
                 }, {
                     token: "constant.language.underscore.idris",
                     regex: /\b_\b/
@@ -348,7 +348,7 @@ ace.define("ace/mode/idris_highlight_rules", ["require", "exports", "module", "a
                 }],
                 "#prelude_const": [{
                     token: "support.constant.prelude.idris",
-                    regex: /\b(?:Just|Nothing|Left|Right|True|False|LT|EQ|GT)\b/
+                    regex: /\b(?:Just|Nothing|Left|Right|True|False|LT|EQ|GT|Refl)\b/
                 }],
                 "#prelude_function": [{
                     token: "support.function.prelude.idris",
