@@ -16,8 +16,107 @@ function playpen_text(playpen) {
 }
 
 (function codeSnippets() {
+
     // Hide Rust code lines prepended with a specific character
     var hiding_character = "#";
+
+    function initialize_playpens_rust(rust_playpens) {
+        // console.log(rust_playpens);
+
+        if (rust_playpens.length > 0) {
+            fetch_with_timeout("https://play.rust-lang.org/meta/crates", {
+                headers: {
+                    'Content-Type': "application/json",
+                },
+                method: 'POST',
+                mode: 'cors',
+            })
+            .then(response => response.json())
+            .then(response => {
+                // get list of crates available in the rust playground
+                let playground_crates = response.crates.map(item => item["id"]);
+                rust_playpens.forEach(block => handle_crate_list_update(block, playground_crates));
+            });
+        }
+
+        function handle_crate_list_update(playpen_block, playground_crates) {
+            // update the play buttons after receiving the response
+            update_play_button(playpen_block, playground_crates);
+    
+            // and install on change listener to dynamically update ACE editors
+            if (window.ace) {
+                let code_block = playpen_block.querySelector("code");
+                if (code_block.classList.contains("editable")) {
+                    let editor = window.ace.edit(code_block);
+                    editor.addEventListener("change", function (e) {
+                        update_play_button(playpen_block, playground_crates);
+                    });
+                }
+            }
+        }
+    
+        // updates the visibility of play button based on `no_run` class and
+        // used crates vs ones available on http://play.rust-lang.org
+        function update_play_button(pre_block, playground_crates) {
+            var play_button = pre_block.querySelector(".play-button");
+    
+            // skip if code is `no_run`
+            if (pre_block.querySelector('code').classList.contains("no_run")) {
+                play_button.classList.add("hidden");
+                return;
+            }
+    
+            // get list of `extern crate`'s from snippet
+            var txt = playpen_text(pre_block);
+            var re = /extern\s+crate\s+([a-zA-Z_0-9]+)\s*;/g;
+            var snippet_crates = [];
+            var item;
+            while (item = re.exec(txt)) {
+                snippet_crates.push(item[1]);
+            }
+    
+            // check if all used crates are available on play.rust-lang.org
+            var all_available = snippet_crates.every(function (elem) {
+                return playground_crates.indexOf(elem) > -1;
+            });
+    
+            if (all_available) {
+                play_button.classList.remove("hidden");
+            } else {
+                play_button.classList.add("hidden");
+            }
+        }
+    }
+
+    function initialize_playpens() {
+        var playpens = Array.from(document.querySelectorAll(".playpen"));
+        var playpensByLang = {};
+
+        playpens.forEach(playpen => {
+            var codeBlocks = Array.from(playpen.children).filter(child => child.matches("code"));
+            if(codeBlocks.length == 1) {
+                var codeBlock = codeBlocks[0];
+                var cls = [].slice.apply(codeBlock.classList);
+                var langCls = cls.filter(cl => cl.startsWith("language-"));
+                if(langCls.length == 1) {
+                    var lang = langCls[0];
+                    if(playpensByLang[lang] === undefined) {
+                        playpensByLang[lang] = [playpen];
+                    } else {
+                        playpensByLang[lang].push(playpen);
+                    }
+                }
+            }
+        });
+
+
+        if(playpensByLang["language-rust"] !== undefined) {
+            initialize_playpens_rust(playpensByLang["language-rust"]);
+        }
+    }
+
+    initialize_playpens();
+
 
     function fetch_with_timeout(url, options, timeout = 6000) {
         return Promise.race([
@@ -26,70 +125,9 @@ function playpen_text(playpen) {
         ]);
     }
 
-    var playpens = Array.from(document.querySelectorAll(".playpen"));
-    if (playpens.length > 0) {
-        fetch_with_timeout("https://play.rust-lang.org/meta/crates", {
-            headers: {
-                'Content-Type': "application/json",
-            },
-            method: 'POST',
-            mode: 'cors',
-        })
-        .then(response => response.json())
-        .then(response => {
-            // get list of crates available in the rust playground
-            let playground_crates = response.crates.map(item => item["id"]);
-            playpens.forEach(block => handle_crate_list_update(block, playground_crates));
-        });
-    }
+    // var playpens = Array.from(document.querySelectorAll(".playpen"));
 
-    function handle_crate_list_update(playpen_block, playground_crates) {
-        // update the play buttons after receiving the response
-        update_play_button(playpen_block, playground_crates);
-
-        // and install on change listener to dynamically update ACE editors
-        if (window.ace) {
-            let code_block = playpen_block.querySelector("code");
-            if (code_block.classList.contains("editable")) {
-                let editor = window.ace.edit(code_block);
-                editor.addEventListener("change", function (e) {
-                    update_play_button(playpen_block, playground_crates);
-                });
-            }
-        }
-    }
-
-    // updates the visibility of play button based on `no_run` class and
-    // used crates vs ones available on http://play.rust-lang.org
-    function update_play_button(pre_block, playground_crates) {
-        var play_button = pre_block.querySelector(".play-button");
-
-        // skip if code is `no_run`
-        if (pre_block.querySelector('code').classList.contains("no_run")) {
-            play_button.classList.add("hidden");
-            return;
-        }
-
-        // get list of `extern crate`'s from snippet
-        var txt = playpen_text(pre_block);
-        var re = /extern\s+crate\s+([a-zA-Z_0-9]+)\s*;/g;
-        var snippet_crates = [];
-        var item;
-        while (item = re.exec(txt)) {
-            snippet_crates.push(item[1]);
-        }
-
-        // check if all used crates are available on play.rust-lang.org
-        var all_available = snippet_crates.every(function (elem) {
-            return playground_crates.indexOf(elem) > -1;
-        });
-
-        if (all_available) {
-            play_button.classList.remove("hidden");
-        } else {
-            play_button.classList.add("hidden");
-        }
-    }
+    
 
     function run_rust_code(code_block) {
         var result_block = code_block.querySelector(".result");
