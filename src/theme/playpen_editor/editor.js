@@ -7,7 +7,7 @@ window.editors = [];
 
     Array.from(document.querySelectorAll('.editable')).forEach(function(editable) {
         let editor = ace.edit(editable);
-            editor.setOptions({
+        editor.setOptions({
             highlightActiveLine: false,
             showPrintMargin: false,
             showLineNumbers: false,

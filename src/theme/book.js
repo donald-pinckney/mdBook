@@ -361,8 +361,9 @@ function playpen_get_lang(playpen) {
 
             undoChangesButton.addEventListener('click', function () {
                 let editor = window.ace.edit(code_block);
-                editor.setValue(editor.originalCode);
-                editor.clearSelection();
+                // editor.setValue(editor.originalCode);
+                // editor.clearSelection();
+                editor.undo(); // Just do a normal undo???
             });
         }
     });
