@@ -591,6 +591,10 @@ fn add_generic_playpen_pre(text: &str) -> String {
     format!("<pre class=\"playpen\">{}</pre>", text)
 }
 
+fn contains_runnable_lang(classes: &str) -> bool {
+    classes.contains("language-rust") || classes.contains("language-idris")
+}
+
 fn add_playpen_pre(html: &str, playpen_config: &Playpen) -> String {
     let regex = Regex::new(r##"((?s)<code[^>]?class="([^"]+)".*?>(.*?)</code>)"##).unwrap();
     regex
@@ -599,12 +603,12 @@ fn add_playpen_pre(html: &str, playpen_config: &Playpen) -> String {
             let classes = &caps[2];
             let code = &caps[3];
 
-            if (classes.contains("language-rust")
+            if (contains_runnable_lang(classes)
                 && !classes.contains("ignore")
                 && !classes.contains("noplaypen"))
                 || classes.contains("mdbook-runnable")
             {
-                if (classes.contains("language-rust")) { 
+                if classes.contains("language-rust") { 
                     add_rust_playpen_pre(classes, text, code, playpen_config)
                 } else {
                     add_generic_playpen_pre(text)

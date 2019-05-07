@@ -165,7 +165,41 @@ function playpen_get_lang(playpen) {
     }
 
     function run_idris_code(code) {
-        return Promise.resolve("Idris not yet implemented! " + code);
+        // return Promise.resolve("Idris not yet implemented! " + code);
+
+        var file1 = new File(["test_code1"], "foo1.idr", {
+            type: "text/plain"
+        });
+        var file2 = new File(["test_code2"], "foo2.idr", {
+            type: "text/plain"
+        });
+
+        var files = [file1, file2];
+
+        var data = new FormData();
+
+        // data.append("username", "Groucho");
+        // data.append("accountnum", 123456); // number 123456 is immediately converted to a string "123456"
+
+        // var content = '<a id="a"><b id="b">hey!</b></a>'; // the body of the new file...
+        // var blob = new Blob([content], { type: "text/xml"});
+        // data.append("webmasterfile", blob);
+
+        // data.append('files[]', file1, file1.name);
+        // data.append('files[]', file2, file2.name);
+        
+        for(const f of files) {
+            data.append('files[]', f, f.name);
+        }
+
+        return fetch_with_timeout("https://us-central1-idrisrunner.cloudfunctions.net/idrisrunner", {
+            // headers: {
+            //     'Content-Type': 'multipart/form-data',
+            // },
+            method: 'POST',
+            mode: 'cors',
+            body: data
+        }).then(response => response.text());
     }
 
     function run_playpen_code(code_block, lang) {
