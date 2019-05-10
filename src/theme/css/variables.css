@@ -5,9 +5,66 @@
     --sidebar-width: 300px;
     --page-padding: 15px;
     --content-max-width: 750px;
+    --sidebar-lineheight: 1.8;
+    --sidebar-active-font-style: normal;
+    --fg-header: var(--fg);
+    /* --sidebar-hover-font-style */
 }
 
 /* Themes */
+
+.light {
+    --button-fg: rgb(54, 65, 73);
+    --button-active-fg: #7ea95b;
+
+
+    --bg: hsl(0, 0%, 100%);
+    --fg: #333333;
+
+    --fg-header: #598037;
+
+    --sidebar-bg: #598037;
+    --sidebar-fg: #e5e5e5;
+    /* --sidebar-non-existant: #aaaaaa; */
+    --sidebar-non-existant: #7ea95b;
+    /* --sidebar-active: #008cff; */
+    --sidebar-active: #fff;
+    --sidebar-active-font-style: bold;
+
+    /* --sidebar-spacer: #f4f4f4; */
+    --sidebar-spacer: #7ea95b;
+
+    --scrollbar: #cccccc;
+
+    --icons: #cccccc;
+    --icons-hover: #333333;
+
+    /* --links: #4183c4; */
+    --links: #7ea95b;
+
+
+    --inline-code-color: #6e6b5e;
+
+    --theme-popup-bg: #fafafa;
+    --theme-popup-border: #cccccc;
+    --theme-hover: #e6e6e6;
+
+    --quote-bg: hsl(197, 37%, 96%);
+    --quote-border: hsl(197, 37%, 91%);
+
+    --table-border-color: hsl(0, 0%, 95%);
+    --table-header-bg: hsl(0, 0%, 80%);
+    --table-alternate-bg: hsl(0, 0%, 97%);
+
+    --searchbar-border-color: #aaa;
+    --searchbar-bg: #fafafa;
+    --searchbar-fg: #000;
+    --searchbar-shadow-color: #aaa;
+    --searchresults-header-fg: #666;
+    --searchresults-border-color: #888;
+    --searchresults-li-bg: #e4f2fe;
+    --search-mark-bg: #a2cff5;
+}
 
 .ayu {
     --bg: hsl(210, 25%, 8%);
@@ -89,45 +146,7 @@
     --search-mark-bg: #355c7d;
 }
 
-.light {
-    --bg: hsl(0, 0%, 100%);
-    --fg: #333333;
 
-    --sidebar-bg: #fafafa;
-    --sidebar-fg: #364149;
-    --sidebar-non-existant: #aaaaaa;
-    --sidebar-active: #008cff;
-    --sidebar-spacer: #f4f4f4;
-
-    --scrollbar: #cccccc;
-
-    --icons: #cccccc;
-    --icons-hover: #333333;
-
-    --links: #4183c4;
-
-    --inline-code-color: #6e6b5e;
-
-    --theme-popup-bg: #fafafa;
-    --theme-popup-border: #cccccc;
-    --theme-hover: #e6e6e6;
-
-    --quote-bg: hsl(197, 37%, 96%);
-    --quote-border: hsl(197, 37%, 91%);
-
-    --table-border-color: hsl(0, 0%, 95%);
-    --table-header-bg: hsl(0, 0%, 80%);
-    --table-alternate-bg: hsl(0, 0%, 97%);
-
-    --searchbar-border-color: #aaa;
-    --searchbar-bg: #fafafa;
-    --searchbar-fg: #000;
-    --searchbar-shadow-color: #aaa;
-    --searchresults-header-fg: #666;
-    --searchresults-border-color: #888;
-    --searchresults-li-bg: #e4f2fe;
-    --search-mark-bg: #a2cff5;
-}
 
 .navy {
     --bg: hsl(226, 23%, 11%);

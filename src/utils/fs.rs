@@ -25,7 +25,11 @@ pub fn normalize_path(path: &str) -> String {
 }
 
 /// Write the given data to a file, creating it first if necessary
-pub fn write_file<P: AsRef<Path>>(build_dir: &Path, filename: P, content: &[u8]) -> Result<()> {
+pub fn write_dependency_file<P: AsRef<Path>>(build_dir: &Path, filename: P, content: &[u8]) -> Result<()> {
+    return Ok(());
+}
+
+pub fn write_content_file<P: AsRef<Path>>(build_dir: &Path, filename: P, content: &[u8]) -> Result<()> {
     let path = build_dir.join(filename);
 
     create_file(&path)?.write_all(content).map_err(|e| e.into())
@@ -53,8 +57,15 @@ pub fn write_file<P: AsRef<Path>>(build_dir: &Path, filename: P, content: &[u8])
 /// it doesn't return the correct path.
 /// Consider [submitting a new issue](https://github.com/rust-lang-nursery/mdBook/issues)
 /// or a [pull-request](https://github.com/rust-lang-nursery/mdBook/pulls) to improve it.
-pub fn path_to_root<P: Into<PathBuf>>(path: P) -> String {
-    debug!("path_to_root");
+pub fn path_to_site_root() -> String {
+    debug!("path_to_site_root");
+    // Remove filename and add "../" for every directory
+
+    "/public/book_deps/".to_owned()
+}
+
+pub fn path_to_book_root<P: Into<PathBuf>>(path: P) -> String {
+    debug!("path_to_book_root");
     // Remove filename and add "../" for every directory
 
     path.into()

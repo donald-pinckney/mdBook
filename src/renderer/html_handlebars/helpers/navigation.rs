@@ -103,8 +103,13 @@ fn render(
         .replace("\"", "");
 
     context.insert(
-        "path_to_root".to_owned(),
-        json!(utils::fs::path_to_root(&base_path)),
+        "path_to_book_root".to_owned(),
+        json!(utils::fs::path_to_book_root(&base_path)),
+    );
+
+    context.insert(
+        "path_to_site_root".to_owned(),
+        json!(utils::fs::path_to_site_root()),
     );
 
     chapter

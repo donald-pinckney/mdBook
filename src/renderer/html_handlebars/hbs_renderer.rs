@@ -67,8 +67,12 @@ impl HtmlHandlebars {
             ctx.data.insert("chapter_title".to_owned(), json!(ch.name));
             ctx.data.insert("title".to_owned(), json!(title));
             ctx.data.insert(
-                "path_to_root".to_owned(),
-                json!(utils::fs::path_to_root(&ch.path)),
+                "path_to_book_root".to_owned(),
+                json!(utils::fs::path_to_book_root(&ch.path)),
+            );
+            ctx.data.insert(
+                "path_to_site_root".to_owned(),
+                json!(utils::fs::path_to_site_root()),
             );
 
             // Render the handlebars template with the data
@@ -79,15 +83,17 @@ impl HtmlHandlebars {
 
             // Write to file
             debug!("Creating {}", filepath.display());
-            utils::fs::write_file(&ctx.destination, &filepath, rendered.as_bytes())?;
+            utils::fs::write_content_file(&ctx.destination, &filepath, rendered.as_bytes())?;
 
             if ctx.is_index {
                 ctx.data.insert("path".to_owned(), json!("index.html"));
-                ctx.data.insert("path_to_root".to_owned(), json!(""));
+                ctx.data.insert("path_to_book_root".to_owned(), json!(""));
+                ctx.data.insert("path_to_site_root".to_owned(), json!(utils::fs::path_to_site_root()));
+                
                 let rendered_index = ctx.handlebars.render("index", &ctx.data)?;
                 let rendered_index = self.post_process(rendered_index, &ctx.html_config.playpen);
                 debug!("Creating index.html from {}", path);
-                utils::fs::write_file(&ctx.destination, "index.html", rendered_index.as_bytes())?;
+                utils::fs::write_content_file(&ctx.destination, "index.html", rendered_index.as_bytes())?;
             }
         }
 
@@ -109,56 +115,56 @@ impl HtmlHandlebars {
         theme: &Theme,
         html_config: &HtmlConfig,
     ) -> Result<()> {
-        use utils::fs::write_file;
+        use utils::fs::write_dependency_file;
 
-        write_file(
+        utils::fs::write_content_file(
             destination,
             ".nojekyll",
             b"This file makes sure that Github Pages doesn't process mdBook's output.",
         )?;
 
-        write_file(destination, "book.js", &theme.js)?;
-        write_file(destination, "css/general.css", &theme.general_css)?;
-        write_file(destination, "css/chrome.css", &theme.chrome_css)?;
-        write_file(destination, "css/print.css", &theme.print_css)?;
-        write_file(destination, "css/variables.css", &theme.variables_css)?;
-        write_file(destination, "favicon.png", &theme.favicon)?;
-        write_file(destination, "highlight.css", &theme.highlight_css)?;
-        write_file(destination, "tomorrow-night.css", &theme.tomorrow_night_css)?;
-        write_file(destination, "ayu-highlight.css", &theme.ayu_highlight_css)?;
-        write_file(destination, "highlight.js", &theme.highlight_js)?;
-        write_file(destination, "clipboard.min.js", &theme.clipboard_js)?;
-        write_file(
+        write_dependency_file(destination, "book.js", &theme.js)?;
+        write_dependency_file(destination, "css/general.css", &theme.general_css)?;
+        write_dependency_file(destination, "css/chrome.css", &theme.chrome_css)?;
+        write_dependency_file(destination, "css/print.css", &theme.print_css)?;
+        write_dependency_file(destination, "css/variables.css", &theme.variables_css)?;
+        write_dependency_file(destination, "favicon.png", &theme.favicon)?;
+        write_dependency_file(destination, "highlight.css", &theme.highlight_css)?;
+        write_dependency_file(destination, "tomorrow-night.css", &theme.tomorrow_night_css)?;
+        write_dependency_file(destination, "ayu-highlight.css", &theme.ayu_highlight_css)?;
+        write_dependency_file(destination, "highlight.js", &theme.highlight_js)?;
+        write_dependency_file(destination, "clipboard.min.js", &theme.clipboard_js)?;
+        write_dependency_file(
             destination,
             "FontAwesome/css/font-awesome.css",
             theme::FONT_AWESOME,
         )?;
-        write_file(
+        write_dependency_file(
             destination,
             "FontAwesome/fonts/fontawesome-webfont.eot",
             theme::FONT_AWESOME_EOT,
         )?;
-        write_file(
+        write_dependency_file(
             destination,
             "FontAwesome/fonts/fontawesome-webfont.svg",
             theme::FONT_AWESOME_SVG,
         )?;
-        write_file(
+        write_dependency_file(
             destination,
             "FontAwesome/fonts/fontawesome-webfont.ttf",
             theme::FONT_AWESOME_TTF,
         )?;
-        write_file(
+        write_dependency_file(
             destination,
             "FontAwesome/fonts/fontawesome-webfont.woff",
             theme::FONT_AWESOME_WOFF,
         )?;
-        write_file(
+        write_dependency_file(
             destination,
             "FontAwesome/fonts/fontawesome-webfont.woff2",
             theme::FONT_AWESOME_WOFF2,
         )?;
-        write_file(
+        write_dependency_file(
             destination,
             "FontAwesome/fonts/FontAwesome.ttf",
             theme::FONT_AWESOME_TTF,
@@ -169,12 +175,12 @@ impl HtmlHandlebars {
         // Ace is a very large dependency, so only load it when requested
         if playpen_config.editable && playpen_config.copy_js {
             // Load the editor
-            write_file(destination, "editor.js", playpen_editor::JS)?;
-            write_file(destination, "ace.js", playpen_editor::ACE_JS)?;
-            write_file(destination, "mode-rust.js", playpen_editor::MODE_RUST_JS)?;
-            write_file(destination, "mode-idris.js", playpen_editor::MODE_IDRIS_JS)?;
-            write_file(destination, "theme-chrome.js", playpen_editor::THEME_CHROME_JS)?;
-            write_file(
+            write_dependency_file(destination, "editor.js", playpen_editor::JS)?;
+            write_dependency_file(destination, "ace.js", playpen_editor::ACE_JS)?;
+            write_dependency_file(destination, "mode-rust.js", playpen_editor::MODE_RUST_JS)?;
+            write_dependency_file(destination, "mode-idris.js", playpen_editor::MODE_IDRIS_JS)?;
+            write_dependency_file(destination, "theme-chrome.js", playpen_editor::THEME_CHROME_JS)?;
+            write_dependency_file(
                 destination,
                 "theme-tomorrow_night.js",
                 playpen_editor::THEME_TOMORROW_NIGHT_JS,
@@ -197,8 +203,12 @@ impl HtmlHandlebars {
         data.insert("path".to_owned(), json!("print.md"));
         data.insert("content".to_owned(), json!(print_content));
         data.insert(
-            "path_to_root".to_owned(),
-            json!(utils::fs::path_to_root(Path::new("print.md"))),
+            "path_to_book_root".to_owned(),
+            json!(utils::fs::path_to_book_root(Path::new("print.md"))),
+        );
+        data.insert(
+            "path_to_site_root".to_owned(),
+            json!(utils::fs::path_to_site_root()),
         );
     }
 
@@ -344,7 +354,7 @@ impl Renderer for HtmlHandlebars {
 
         let rendered = self.post_process(rendered, &html_config.playpen);
 
-        utils::fs::write_file(&destination, "print.html", rendered.as_bytes())?;
+        utils::fs::write_content_file(&destination, "print.html", rendered.as_bytes())?;
         debug!("Creating print.html ✓");
 
         debug!("Copy static files");
@@ -586,13 +596,37 @@ fn add_rust_playpen_pre(classes: &str, text: &str, code: &str, playpen_config: &
     }
 }
 
-fn add_generic_playpen_pre(text: &str) -> String {
+fn add_generic_playpen_pre(classes: &str, text: &str) -> String {
     // wrap the contents in an external pre block
-    format!("<pre class=\"playpen\">{}</pre>", text)
+    let to_add = match get_path_slice(classes) {
+        (Some(path), Some(slice)) => Some(format!("data-path=\"{}\" data-slice=\"{}\"", path, slice)),
+        (Some(path), None) => Some(format!("data-path=\"{}\" data-slice=\"0\"", path)),
+        (None, _) => None
+    };
+
+    match to_add {
+        None => format!("<pre class=\"playpen\">{}</pre>", text),
+        Some(add_str) => format!("<pre class=\"playpen\" {}>{}</pre>", add_str, text)
+    }
 }
 
 fn contains_runnable_lang(classes: &str) -> bool {
     classes.contains("language-rust") || classes.contains("language-idris")
+}
+
+fn get_path_slice(classes: &str) -> (Option<String>, Option<i32>) {
+    lazy_static! {
+        static ref RE_PATH: Regex = Regex::new(r"path=(?P<path>[^\s]+)").unwrap();
+        static ref RE_SLICE: Regex = Regex::new(r"slice=(?P<slice>\d+)").unwrap();
+    }
+    let path = RE_PATH.captures(classes).and_then(|cap| {
+        cap.name("path").map(|path| path.as_str().to_string())
+    });
+    let slice = RE_SLICE.captures(classes).and_then(|cap| {
+        cap.name("slice").and_then(|slice| slice.as_str().parse::<i32>().ok())
+    });
+
+    (path, slice)
 }
 
 fn add_playpen_pre(html: &str, playpen_config: &Playpen) -> String {
@@ -605,13 +639,14 @@ fn add_playpen_pre(html: &str, playpen_config: &Playpen) -> String {
 
             if (contains_runnable_lang(classes)
                 && !classes.contains("ignore")
-                && !classes.contains("noplaypen"))
+                && !classes.contains("noplaypen")
+                && !classes.contains("norun"))
                 || classes.contains("mdbook-runnable")
             {
                 if classes.contains("language-rust") { 
                     add_rust_playpen_pre(classes, text, code, playpen_config)
                 } else {
-                    add_generic_playpen_pre(text)
+                    add_generic_playpen_pre(classes, text)
                 }
             } else {
                 // not language-rust, so no-op

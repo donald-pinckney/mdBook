@@ -9,25 +9,25 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        <link rel="shortcut icon" href="{{ path_to_root }}{{ favicon }}">
-        <link rel="stylesheet" href="{{ path_to_root }}css/variables.css">
-        <link rel="stylesheet" href="{{ path_to_root }}css/general.css">
-        <link rel="stylesheet" href="{{ path_to_root }}css/chrome.css">
-        <link rel="stylesheet" href="{{ path_to_root }}css/print.css" media="print">
+        <link rel="shortcut icon" href="{{ path_to_site_root }}{{ favicon }}">
+        <link rel="stylesheet" href="{{ path_to_site_root }}css/variables.css">
+        <link rel="stylesheet" href="{{ path_to_site_root }}css/general.css">
+        <link rel="stylesheet" href="{{ path_to_site_root }}css/chrome.css">
+        <link rel="stylesheet" href="{{ path_to_site_root }}css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="{{ path_to_root }}FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="{{ path_to_site_root }}FontAwesome/css/font-awesome.css">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="{{ path_to_root }}highlight.css">
-        <link rel="stylesheet" href="{{ path_to_root }}tomorrow-night.css">
-        <link rel="stylesheet" href="{{ path_to_root }}ayu-highlight.css">
+        <link rel="stylesheet" href="{{ path_to_site_root }}css/highlight.css">
+        <link rel="stylesheet" href="{{ path_to_site_root }}css/tomorrow-night.css">
+        <link rel="stylesheet" href="{{ path_to_site_root }}css/ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
         {{#each additional_css}}
-        <link rel="stylesheet" href="{{ ../path_to_root }}{{ this }}">
+        <link rel="stylesheet" href="{{ ../path_to_book_root }}{{ this }}">
         {{/each}}
 
         {{#if mathjax_support}}
@@ -38,7 +38,8 @@
     <body class="{{ default_theme }}">
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
-            var path_to_root = "{{ path_to_root }}";
+            var path_to_book_root = "{{ path_to_book_root }}";
+            var path_to_site_root = "{{ path_to_site_root }}";
             var default_theme = "{{ default_theme }}";
         </script>
 
@@ -81,6 +82,10 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             {{#toc}}{{/toc}}
+
+            <ol class="chapter">
+                <li><a href="/"><i class="fa fa-arrow-circle-left"></i> Home</a></li>
+            </ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -113,7 +118,7 @@
                         <h1 class="menu-title">{{ book_title }}</h1> 
 
                         <div class="right-buttons">
-                            <a href="{{ path_to_root }}print.html" title="Print this book" aria-label="Print this book">
+                            <a href="{{ path_to_book_root }}print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
                             {{#if git_repository_url}}
@@ -155,13 +160,13 @@
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         {{#previous}}
-                            <a rel="prev" href="{{ path_to_root }}{{link}}" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="{{ path_to_book_root }}{{link}}" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         {{/previous}}
 
                         {{#next}}
-                            <a rel="next" href="{{ path_to_root }}{{link}}" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="{{ path_to_book_root }}{{link}}" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         {{/next}}
@@ -173,13 +178,13 @@
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 {{#previous}}
-                    <a href="{{ path_to_root }}{{link}}" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="{{ path_to_book_root }}{{link}}" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 {{/previous}}
 
                 {{#next}}
-                    <a href="{{ path_to_root }}{{link}}" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="{{ path_to_book_root }}{{link}}" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 {{/next}}
@@ -224,27 +229,27 @@
         {{/if}}
 
         {{#if playpen_js}}
-        <script src="{{ path_to_root }}ace.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}editor.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}mode-rust.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}mode-idris.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}theme-chrome.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/public/js/editor-setup.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/mode-rust.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/mode-idris.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/theme-chrome.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
         {{/if}}
 
         {{#if search_js}}
-        <script src="{{ path_to_root }}elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/searcher.js" type="text/javascript" charset="utf-8"></script>
         {{/if}}
 
-        <script src="{{ path_to_root }}clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="{{ path_to_root }}book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="{{ path_to_site_root }}js/book.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- Custom JS scripts -->
         {{#each additional_js}}
-        <script type="text/javascript" src="{{ ../path_to_root }}{{this}}"></script>
+        <script type="text/javascript" src="{{ ../path_to_book_root }}{{this}}"></script>
         {{/each}}
 
         {{#if is_print}}

@@ -11,7 +11,7 @@ use dummy_book::{assert_contains_strings, assert_doesnt_contain_strings, DummyBo
 
 use mdbook::config::Config;
 use mdbook::errors::*;
-use mdbook::utils::fs::{file_to_string, write_file};
+use mdbook::utils::fs::{file_to_string, write_content_file};
 use mdbook::MDBook;
 use select::document::Document;
 use select::predicate::{Class, Name, Predicate};
@@ -402,7 +402,7 @@ fn theme_dir_overrides_work_correctly() {
     let mut index = ::mdbook::theme::INDEX.to_vec();
     index.extend_from_slice(b"\n<!-- This is a modified index.hbs! -->");
 
-    write_file(&theme_dir, "index.hbs", &index).unwrap();
+    write_content_file(&theme_dir, "index.hbs", &index).unwrap();
 
     let md = MDBook::load(book_dir).unwrap();
     md.build().unwrap();

@@ -64,6 +64,7 @@ impl Theme {
     /// Creates a `Theme` from the given `theme_dir`.
     /// If a file is found in the theme dir, it will override the default version.
     pub fn new<P: AsRef<Path>>(theme_dir: P) -> Self {
+
         let theme_dir = theme_dir.as_ref();
         let mut theme = Theme::default();
 

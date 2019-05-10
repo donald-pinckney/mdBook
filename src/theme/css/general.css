@@ -3,7 +3,9 @@
 @import 'variables.css';
 
 html {
-    font-family: "Open Sans", sans-serif;
+    /* font-family: "Open Sans", sans-serif; */
+    font-family: "PT Sans", Helvetica, Arial, sans-serif;
+    line-height: 1.4;
     color: var(--fg);
     background-color: var(--bg);
     text-size-adjust: none;
@@ -27,6 +29,14 @@ code {
 
 h2, h3 { margin-top: 2.5em; }
 h4, h5 { margin-top: 2em; }
+
+.header h1, 
+.header h2, 
+.header h3, 
+.header h4, 
+.header h5 {
+    color: var(--fg-header);
+}
 
 .header + .header h3,
 .header + .header h4,
