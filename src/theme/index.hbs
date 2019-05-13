@@ -40,6 +40,7 @@
             var path_to_book_root = "{{ path_to_book_root }}";
             var path_to_site_root = "{{ path_to_site_root }}";
             var default_theme = "{{ default_theme }}";
+            window.is_book_mode = true;
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -245,6 +246,7 @@
         <script src="{{ path_to_site_root }}js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="{{ path_to_site_root }}js/highlight.js" type="text/javascript" charset="utf-8"></script>
         <script src="{{ path_to_site_root }}js/book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/public/js/code-snippets.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- Custom JS scripts -->
         {{#each additional_js}}
