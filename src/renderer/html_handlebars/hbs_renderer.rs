@@ -26,7 +26,7 @@ impl HtmlHandlebars {
     fn render_item(
         &self,
         item: &BookItem,
-        mut ctx: RenderItemContext,
+        mut ctx: RenderItemContext<'_>,
         print_content: &mut String,
     ) -> Result<()> {
         // FIXME: This should be made DRY-er and rely less on mutable state
@@ -36,7 +36,11 @@ impl HtmlHandlebars {
 
             let string_path = ch.path.parent().unwrap().display().to_string();
 
-            let fixed_content = utils::render_markdown_with_base(&ch.content, ctx.html_config.curly_quotes, &string_path);
+            let fixed_content = utils::render_markdown_with_base(
+                &ch.content,
+                ctx.html_config.curly_quotes,
+                &string_path,
+            );
             print_content.push_str(&fixed_content);
 
             // Update the context with data for this file
@@ -436,13 +440,7 @@ fn make_data(
         for script in &html.additional_js {
             match script.strip_prefix(root) {
                 Ok(p) => js.push(p.to_str().expect("Could not convert to str")),
-                Err(_) => js.push(
-                    script
-                        .file_name()
-                        .expect("File has a file name")
-                        .to_str()
-                        .expect("Could not convert to str"),
-                ),
+                Err(_) => js.push(script.to_str().expect("Could not convert to str")),
             }
         }
         data.insert("additional_js".to_owned(), json!(js));
@@ -517,13 +515,14 @@ fn build_header_links(html: &str) -> String {
     let mut id_counter = HashMap::new();
 
     regex
-        .replace_all(html, |caps: &Captures| {
+        .replace_all(html, |caps: &Captures<'_>| {
             let level = caps[1]
                 .parse()
                 .expect("Regex should ensure we only ever get numbers here");
 
             wrap_header_with_link(level, &caps[2], &mut id_counter)
-        }).into_owned()
+        })
+        .into_owned()
 }
 
 /// Wraps a single header tag with a link, making sure each tag gets its own
@@ -563,7 +562,7 @@ fn wrap_header_with_link(
 fn fix_code_blocks(html: &str) -> String {
     let regex = Regex::new(r##"<code([^>]+)class="([^"]+)"([^>]*)>"##).unwrap();
     regex
-        .replace_all(html, |caps: &Captures| {
+        .replace_all(html, |caps: &Captures<'_>| {
             let before = &caps[1];
             let classes = &caps[2].replace(",", " ");
             let after = &caps[3];
@@ -574,7 +573,8 @@ fn fix_code_blocks(html: &str) -> String {
                 classes = classes,
                 after = after
             )
-        }).into_owned()
+        })
+        .into_owned()
 }
 
 fn add_rust_playpen_pre(classes: &str, text: &str, code: &str, playpen_config: &Playpen) -> String {
@@ -632,7 +632,7 @@ fn get_path_slice(classes: &str) -> (Option<String>, Option<i32>) {
 fn add_playpen_pre(html: &str, playpen_config: &Playpen) -> String {
     let regex = Regex::new(r##"((?s)<code[^>]?class="([^"]+)".*?>(.*?)</code>)"##).unwrap();
     regex
-        .replace_all(html, |caps: &Captures| {
+        .replace_all(html, |caps: &Captures<'_>| {
             let text = &caps[1];
             let classes = &caps[2];
             let code = &caps[3];
@@ -652,7 +652,8 @@ fn add_playpen_pre(html: &str, playpen_config: &Playpen) -> String {
                 // not language-rust, so no-op
                 text.to_owned()
             }
-        }).into_owned()
+        })
+        .into_owned()
 }
 
 fn partition_source(s: &str) -> (String, String) {
@@ -662,7 +663,7 @@ fn partition_source(s: &str) -> (String, String) {
 
     for line in s.lines() {
         let trimline = line.trim();
-        let header = trimline.chars().all(|c| c.is_whitespace()) || trimline.starts_with("#![");
+        let header = trimline.chars().all(char::is_whitespace) || trimline.starts_with("#![");
         if !header || after_header {
             after_header = true;
             after.push_str(line);

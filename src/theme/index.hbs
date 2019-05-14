@@ -4,6 +4,10 @@
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>{{ title }}</title>
+        {{#if is_print }}
+        <meta name="robots" content="noindex" />
+        {{/if}}
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="{{ description }}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -62,7 +66,7 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script type="text/javascript">
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             document.body.className = theme;
             document.querySelector('html').className = theme + ' js';
@@ -81,11 +85,13 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            {{#toc}}{{/toc}}
-
-            <ol class="chapter">
-                <li><a href="/"><i class="fa fa-arrow-circle-left"></i> Home</a></li>
-            </ol>
+            <div class="sidebar-scrollbox">
+                {{#toc}}{{/toc}}
+                <ol class="chapter">
+                    <li><a href="/"><i class="fa fa-arrow-circle-left"></i> Home</a></li>
+                </ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -115,7 +121,7 @@
                             {{/if}}
                         </div>
 
-                        <h1 class="menu-title">{{ book_title }}</h1> 
+                        <h1 class="menu-title">{{ book_title }}</h1>
 
                         <div class="right-buttons">
                             <a href="{{ path_to_book_root }}print.html" title="Print this book" aria-label="Print this book">
