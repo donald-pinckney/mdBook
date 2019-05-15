@@ -1,2 +1,2 @@
 #!/bin/bash
-cargo install --path .
+cargo install --path . --force
